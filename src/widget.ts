@@ -246,15 +246,26 @@ export class ChatWidget {
 
     if (!userMsg || assistantMsg.role !== 'assistant') return;
 
+    // Build feedback payload
+    const payload: Record<string, unknown> = {
+      query: userMsg.content,
+      answer: assistantMsg.content,
+      feedback: feedback,
+    };
+
+    // Include full chat history if enabled
+    if (this.config.features.chatHistory) {
+      payload.history = messages.slice(0, msgIndex + 1).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+    }
+
     // Send to backend
     fetch(`${this.config.apiUrl}/feedback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: userMsg.content,
-        answer: assistantMsg.content,
-        feedback: feedback,
-      }),
+      body: JSON.stringify(payload),
     }).catch(() => {
       // Silently fail - feedback is best-effort
     });
