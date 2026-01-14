@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Chatbot Widget - Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #1a73e8;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #1a73e8;
+    }
+
+    .card p {
+      margin-bottom: 12px;
+    }
+
+    .card ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .card li {
+      margin-bottom: 8px;
+    }
+
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 16px;
+      margin-top: 16px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Enterprise Chatbot Widget</h1>
+    <p>Demo-Seite für den Dokument-Assistenten</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Willkommen</h2>
+      <p>
+        Dies ist eine Demo-Seite für das Enterprise Chatbot Widget.
+        Klicken Sie auf den blauen Button unten rechts, um den Assistenten zu öffnen.
+      </p>
+      <p>
+        Der Chatbot verbindet sich mit dem Enterprise RAG System und kann Fragen
+        zu Ihren Dokumenten beantworten.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Funktionen</h2>
+      <ul>
+        <li><strong>Streaming-Antworten</strong> - Antworten werden in Echtzeit angezeigt</li>
+        <li><strong>Quellenangaben</strong> - Jede Antwort enthält Referenzen zu den Originaldokumenten</li>
+        <li><strong>Session-Speicherung</strong> - Der Chatverlauf bleibt beim Seitenwechsel erhalten</li>
+        <li><strong>Kopieren</strong> - Antworten können mit einem Klick kopiert werden</li>
+        <li><strong>Feedback</strong> - Bewerten Sie Antworten mit Daumen hoch/runter</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Integration</h2>
+      <p>So integrieren Sie das Widget in Ihre Seite:</p>
+      <pre>&lt;script src="chatbot-widget.js" data-auto-init="true"&gt;&lt;/script&gt;</pre>
+
+      <p style="margin-top: 16px;">Oder mit mehr Kontrolle:</p>
+      <pre>&lt;script src="chatbot-widget.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  EnterpriseChat.init({
+    position: 'bottom-right',
+    theme: { primaryColor: '#1a73e8' },
+    labels: { title: 'Dokument-Assistent' }
+  });
+&lt;/script&gt;</pre>
+
+      <div class="note">
+        <strong>Hinweis:</strong> Die API-URL wird beim Build in das Widget eingebettet.
+        Build mit: <code>VITE_API_URL=https://ihr-server.de npm run build</code>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Test ohne Backend</h2>
+      <p>
+        Um das Widget ohne ein laufendes RAG-Backend zu testen, können Sie die
+        Browser-Konsole öffnen, um Netzwerkfehler zu sehen. Das UI funktioniert
+        trotzdem und zeigt eine Fehlermeldung an.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Enterprise Chatbot Widget v1.0.0</p>
+  </footer>
+
+  <!-- Widget (API URL baked in at build time) -->
+  <script src="../dist/chatbot-widget.js" data-auto-init="true"></script>
+</body>
+</html>

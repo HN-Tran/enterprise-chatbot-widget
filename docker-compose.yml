@@ -1,0 +1,27 @@
+services:
+  # Build the widget and copy to ./dist
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+    volumes:
+      - ./dist:/output
+    command: cp /app/dist/chatbot-widget.js /output/
+    profiles:
+      - build
+
+  # Serve the widget demo (for testing)
+  serve:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: serve
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+    ports:
+      - "${WIDGET_PORT:-8000}:80"
+    profiles:
+      - serve
