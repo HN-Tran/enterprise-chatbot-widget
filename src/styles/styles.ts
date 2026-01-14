@@ -381,6 +381,82 @@ function getStyles(config: ResolvedConfig): string {
       border-bottom-left-radius: 4px;
     }
 
+    /* ===== Markdown Styles ===== */
+    .ec-message-content p {
+      margin: 0 0 8px 0;
+    }
+
+    .ec-message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .ec-message-content strong {
+      font-weight: 600;
+    }
+
+    .ec-message-content em {
+      font-style: italic;
+    }
+
+    .ec-message-content a {
+      color: ${primaryColor};
+      text-decoration: underline;
+    }
+
+    .ec-message-content a:hover {
+      text-decoration: none;
+    }
+
+    .ec-code-inline {
+      background: rgba(0, 0, 0, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .ec-code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      font-size: 0.85em;
+      margin: 8px 0;
+    }
+
+    .ec-code-block code {
+      background: none;
+      padding: 0;
+    }
+
+    .ec-list {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .ec-list li {
+      margin: 4px 0;
+    }
+
+    .ec-h1, .ec-h2, .ec-h3 {
+      display: block;
+      margin: 12px 0 8px 0;
+    }
+
+    .ec-h1 { font-size: 1.2em; }
+    .ec-h2 { font-size: 1.1em; }
+    .ec-h3 { font-size: 1em; }
+
+    .ec-citation {
+      color: ${primaryColor};
+      font-weight: 600;
+      font-size: 0.85em;
+      vertical-align: super;
+      cursor: default;
+    }
+
     /* ===== Thinking Indicator ===== */
     .ec-thinking {
       display: flex;

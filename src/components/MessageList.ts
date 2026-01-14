@@ -2,6 +2,7 @@ import type { Message, ResolvedConfig, Source } from '../types';
 import { SourceCard } from './SourceCard';
 import { CopyButton } from './CopyButton';
 import { FeedbackButtons } from './FeedbackButtons';
+import { renderMarkdown } from '../utils/markdown';
 
 export class MessageList {
   private element: HTMLDivElement;
@@ -149,7 +150,13 @@ export class MessageList {
     // Content
     const content = document.createElement('div');
     content.className = 'ec-message-content';
-    content.textContent = message.content;
+    if (message.role === 'assistant') {
+      // Render markdown for assistant messages
+      content.innerHTML = renderMarkdown(message.content);
+    } else {
+      // Plain text for user messages
+      content.textContent = message.content;
+    }
     msgEl.appendChild(content);
 
     // Sources AFTER content (for assistant messages) - only show cited sources

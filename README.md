@@ -20,7 +20,7 @@ Embeddable chatbot widget for the Enterprise RAG system. Deployable via a single
 
 ```bash
 # Build with your API endpoint baked in
-VITE_API_URL=https://your-rag-api.example.com docker compose --profile build up
+VITE_API_URL=https://your-rag-api.example.com docker compose --profile build up --build
 
 # Output: ./dist/chatbot-widget.js
 ```
@@ -41,7 +41,7 @@ VITE_API_URL=https://your-rag-api.example.com npm run build
 
 ```bash
 # Serve the demo page with widget
-VITE_API_URL=http://localhost:8080 docker compose --profile serve up
+VITE_API_URL=http://localhost:8080 docker compose --profile serve up --build
 
 # Open http://localhost:8000
 ```
