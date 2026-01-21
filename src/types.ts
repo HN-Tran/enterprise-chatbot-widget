@@ -19,6 +19,7 @@ export interface WidgetConfig {
     copyButton?: boolean;
     feedbackButtons?: boolean;
     chatHistory?: boolean;  // Send previous messages for context
+    includeArchived?: boolean;  // Include archived documents in search
   };
 }
 
@@ -44,6 +45,7 @@ export interface ResolvedConfig {
     welcomeMessage: string;
     settings: string;
     chatHistoryLabel: string;
+    includeArchivedLabel: string;
     expand: string;
     collapse: string;
   };
@@ -52,6 +54,7 @@ export interface ResolvedConfig {
     copyButton: boolean;
     feedbackButtons: boolean;
     chatHistory: boolean;
+    includeArchived: boolean;
   };
 }
 

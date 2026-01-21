@@ -17,7 +17,7 @@ export class ChatWindow {
   private onSend: (query: string) => void;
   private onFeedback: (messageId: string, feedback: 'up' | 'down') => void;
   private onNewChat: () => void;
-  private onSettingsChange: (settings: { chatHistory: boolean }) => void;
+  private onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void;
 
   constructor(
     config: ResolvedConfig,
@@ -25,7 +25,7 @@ export class ChatWindow {
     onSend: (query: string) => void,
     onFeedback: (messageId: string, feedback: 'up' | 'down') => void,
     onNewChat: () => void,
-    onSettingsChange: (settings: { chatHistory: boolean }) => void
+    onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void
   ) {
     this.config = config;
     this.onClose = onClose;
@@ -233,20 +233,45 @@ export class ChatWindow {
     const historyRow = document.createElement('label');
     historyRow.className = 'ec-settings-row';
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = this.config.features.chatHistory;
-    checkbox.addEventListener('change', () => {
-      this.config.features.chatHistory = checkbox.checked;
-      this.onSettingsChange({ chatHistory: checkbox.checked });
+    const historyCheckbox = document.createElement('input');
+    historyCheckbox.type = 'checkbox';
+    historyCheckbox.checked = this.config.features.chatHistory;
+    historyCheckbox.addEventListener('change', () => {
+      this.config.features.chatHistory = historyCheckbox.checked;
+      this.onSettingsChange({
+        chatHistory: historyCheckbox.checked,
+        includeArchived: this.config.features.includeArchived,
+      });
     });
 
-    const label = document.createElement('span');
-    label.textContent = this.config.labels.chatHistoryLabel;
+    const historyLabel = document.createElement('span');
+    historyLabel.textContent = this.config.labels.chatHistoryLabel;
 
-    historyRow.appendChild(checkbox);
-    historyRow.appendChild(label);
+    historyRow.appendChild(historyCheckbox);
+    historyRow.appendChild(historyLabel);
     this.settingsPanel.appendChild(historyRow);
+
+    // Include archived toggle
+    const archivedRow = document.createElement('label');
+    archivedRow.className = 'ec-settings-row';
+
+    const archivedCheckbox = document.createElement('input');
+    archivedCheckbox.type = 'checkbox';
+    archivedCheckbox.checked = this.config.features.includeArchived;
+    archivedCheckbox.addEventListener('change', () => {
+      this.config.features.includeArchived = archivedCheckbox.checked;
+      this.onSettingsChange({
+        chatHistory: this.config.features.chatHistory,
+        includeArchived: archivedCheckbox.checked,
+      });
+    });
+
+    const archivedLabel = document.createElement('span');
+    archivedLabel.textContent = this.config.labels.includeArchivedLabel;
+
+    archivedRow.appendChild(archivedCheckbox);
+    archivedRow.appendChild(archivedLabel);
+    this.settingsPanel.appendChild(archivedRow);
 
     this.element.appendChild(this.settingsPanel);
 

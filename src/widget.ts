@@ -89,6 +89,7 @@ export class ChatWidget {
         welcomeMessage: 'Hallo! Wie kann ich Ihnen helfen?',
         settings: 'Einstellungen',
         chatHistoryLabel: 'Chat-Verlauf nutzen',
+        includeArchivedLabel: 'Archivierte Dokumente einbeziehen',
         expand: 'Vergrößern',
         collapse: 'Verkleinern',
       },
@@ -97,6 +98,7 @@ export class ChatWidget {
         copyButton: userConfig.features?.copyButton ?? true,
         feedbackButtons: userConfig.features?.feedbackButtons ?? true,
         chatHistory: this.storage.getSetting('chatHistory', userConfig.features?.chatHistory ?? true),
+        includeArchived: this.storage.getSetting('includeArchived', userConfig.features?.includeArchived ?? false),
       },
     };
   }
@@ -201,7 +203,7 @@ export class ChatWidget {
             this.bubble.getMascot().setState('idle');
           }, 2000);
         },
-      }, history);
+      }, history, this.config.features.includeArchived);
     } catch (error) {
       this.window.hideThinking();
       this.window.showError(error instanceof Error ? error.message : 'Unknown error');
@@ -225,9 +227,11 @@ export class ChatWidget {
     this.bubble.getMascot().setState('idle');
   }
 
-  private handleSettingsChange(settings: { chatHistory: boolean }): void {
+  private handleSettingsChange(settings: { chatHistory: boolean; includeArchived: boolean }): void {
     this.config.features.chatHistory = settings.chatHistory;
     this.storage.setSetting('chatHistory', settings.chatHistory);
+    this.config.features.includeArchived = settings.includeArchived;
+    this.storage.setSetting('includeArchived', settings.includeArchived);
   }
 
   private handleFeedback(messageId: string, feedback: 'up' | 'down'): void {

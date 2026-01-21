@@ -12,7 +12,8 @@ export class ApiClient {
     query: string,
     k: number = 8,
     callbacks: StreamCallbacks,
-    history?: { role: 'user' | 'assistant'; content: string }[]
+    history?: { role: 'user' | 'assistant'; content: string }[],
+    includeArchived?: boolean
   ): Promise<void> {
     // Abort any existing request
     this.abort();
@@ -22,6 +23,9 @@ export class ApiClient {
       const body: Record<string, unknown> = { query, k };
       if (history && history.length > 0) {
         body.history = history;
+      }
+      if (includeArchived) {
+        body.include_archived = true;
       }
 
       const response = await fetch(`${this.baseUrl}/search/stream`, {
