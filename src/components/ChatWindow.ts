@@ -363,22 +363,24 @@ export class ChatWindow {
     embToggle.className = 'ec-toggle-buttons';
 
     const fastBtn = document.createElement('button');
-    fastBtn.className = 'ec-toggle-btn' + (this.config.selectedEmbeddingModel === 'nomic' ? ' ec-active' : '');
+    fastBtn.className = 'ec-toggle-btn';
+    fastBtn.dataset.active = String(this.config.selectedEmbeddingModel === 'nomic');
     fastBtn.textContent = this.config.labels.embeddingFast;
     fastBtn.addEventListener('click', () => {
       this.config.selectedEmbeddingModel = 'nomic';
-      fastBtn.classList.add('ec-active');
-      preciseBtn.classList.remove('ec-active');
+      fastBtn.dataset.active = 'true';
+      preciseBtn.dataset.active = 'false';
       this.onEmbeddingModelChange('nomic');
     });
 
     const preciseBtn = document.createElement('button');
-    preciseBtn.className = 'ec-toggle-btn' + (this.config.selectedEmbeddingModel === 'qwen' ? ' ec-active' : '');
+    preciseBtn.className = 'ec-toggle-btn';
+    preciseBtn.dataset.active = String(this.config.selectedEmbeddingModel === 'qwen');
     preciseBtn.textContent = this.config.labels.embeddingPrecise;
     preciseBtn.addEventListener('click', () => {
       this.config.selectedEmbeddingModel = 'qwen';
-      preciseBtn.classList.add('ec-active');
-      fastBtn.classList.remove('ec-active');
+      preciseBtn.dataset.active = 'true';
+      fastBtn.dataset.active = 'false';
       this.onEmbeddingModelChange('qwen');
     });
 

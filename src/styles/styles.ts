@@ -614,8 +614,13 @@ function getStyles(config: ResolvedConfig): string {
       flex-shrink: 0;
     }
 
-    .ec-input {
+    .ec-input-wrapper {
       flex: 1;
+      position: relative;
+    }
+
+    .ec-input {
+      width: 100%;
       border: 1px solid #ddd;
       border-radius: 24px;
       padding: 10px 16px;
@@ -623,6 +628,7 @@ function getStyles(config: ResolvedConfig): string {
       font-family: inherit;
       outline: none;
       transition: border-color 0.2s;
+      box-sizing: border-box;
     }
 
     .ec-input:focus {
@@ -631,6 +637,39 @@ function getStyles(config: ResolvedConfig): string {
 
     .ec-input::placeholder {
       color: #999;
+    }
+
+    .ec-input.ec-at-limit {
+      border-color: #e53935;
+    }
+
+    .ec-input.ec-at-limit:focus {
+      border-color: #e53935;
+    }
+
+    .ec-char-counter {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .ec-char-counter.ec-visible {
+      opacity: 1;
+    }
+
+    .ec-char-counter.ec-warning {
+      color: #ff9800;
+    }
+
+    .ec-char-counter.ec-limit {
+      color: #e53935;
+      font-weight: 500;
     }
 
     .ec-send-btn {
@@ -665,8 +704,8 @@ function getStyles(config: ResolvedConfig): string {
     .ec-category-selector {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 8px 16px;
+      gap: 12px;
+      padding: 6px 12px;
       border-top: 1px solid #e0e0e0;
       background: #fafafa;
     }
@@ -674,26 +713,28 @@ function getStyles(config: ResolvedConfig): string {
     .ec-selector-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .ec-selector-group:first-child {
       flex: 1;
+      min-width: 0;
     }
 
     .ec-category-label {
-      font-size: 13px;
-      color: #666;
+      font-size: 11px;
+      color: #888;
       font-weight: 500;
       white-space: nowrap;
     }
 
     .ec-category-select {
       flex: 1;
+      min-width: 0;
       border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 13px;
+      border-radius: 4px;
+      padding: 4px 6px;
+      font-size: 12px;
       font-family: inherit;
       background: white;
       color: #333;
@@ -713,36 +754,36 @@ function getStyles(config: ResolvedConfig): string {
     /* Embedding Toggle */
     .ec-toggle-buttons {
       display: flex;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
+      border: 1px solid #ddd;
     }
 
-    .ec-toggle-btn {
-      padding: 5px 10px;
-      font-size: 12px;
+    .ec-widget .ec-toggle-btn {
+      padding: 4px 8px;
+      font-size: 11px;
       font-family: inherit;
-      background: white;
+      background: #fff;
       border: none;
+      border-right: 1px solid #ddd;
       cursor: pointer;
       color: #666;
-      transition: all 0.2s;
     }
 
-    .ec-toggle-btn:first-child {
-      border-right: 1px solid #ddd;
+    .ec-widget .ec-toggle-btn:last-child {
+      border-right: none;
     }
 
-    .ec-toggle-btn:hover {
-      background: #f5f5f5;
+    .ec-widget .ec-toggle-btn:hover {
+      background: #f0f0f0;
     }
 
-    .ec-toggle-btn.ec-active {
+    .ec-widget .ec-toggle-btn[data-active="true"] {
       background: ${primaryColor};
-      color: white;
+      color: #fff;
     }
 
-    .ec-toggle-btn.ec-active:hover {
+    .ec-widget .ec-toggle-btn[data-active="true"]:hover {
       background: ${primaryColor};
     }
 
