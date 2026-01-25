@@ -19,6 +19,7 @@ export class ChatWindow {
   private onNewChat: () => void;
   private onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void;
   private onCategoryChange: (category: string | null) => void;
+  private onEmbeddingModelChange: (model: 'nomic' | 'qwen') => void;
 
   constructor(
     config: ResolvedConfig,
@@ -27,7 +28,8 @@ export class ChatWindow {
     onFeedback: (messageId: string, feedback: 'up' | 'down', comment?: string) => void,
     onNewChat: () => void,
     onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void,
-    onCategoryChange: (category: string | null) => void
+    onCategoryChange: (category: string | null) => void,
+    onEmbeddingModelChange: (model: 'nomic' | 'qwen') => void
   ) {
     this.config = config;
     this.onClose = onClose;
@@ -36,6 +38,7 @@ export class ChatWindow {
     this.onNewChat = onNewChat;
     this.onSettingsChange = onSettingsChange;
     this.onCategoryChange = onCategoryChange;
+    this.onEmbeddingModelChange = onEmbeddingModelChange;
 
     this.element = document.createElement('div');
     this.element.className = 'ec-window ec-hidden';
@@ -309,39 +312,81 @@ export class ChatWindow {
     const container = document.createElement('div');
     container.className = 'ec-category-selector';
 
-    const label = document.createElement('label');
-    label.className = 'ec-category-label';
-    label.textContent = this.config.labels.categoryLabel;
+    // Category dropdown
+    const catGroup = document.createElement('div');
+    catGroup.className = 'ec-selector-group';
 
-    const select = document.createElement('select');
-    select.className = 'ec-category-select';
+    const catLabel = document.createElement('label');
+    catLabel.className = 'ec-category-label';
+    catLabel.textContent = this.config.labels.categoryLabel;
+
+    const catSelect = document.createElement('select');
+    catSelect.className = 'ec-category-select';
 
     // Add "All categories" option
     const allOption = document.createElement('option');
     allOption.value = '';
     allOption.textContent = this.config.labels.allCategories;
-    select.appendChild(allOption);
+    catSelect.appendChild(allOption);
 
     // Add category options
     this.config.categories.forEach((cat) => {
       const option = document.createElement('option');
       option.value = cat.value;
       option.textContent = cat.label;
-      select.appendChild(option);
+      catSelect.appendChild(option);
     });
 
     // Set initial value
-    select.value = this.config.selectedCategory ?? '';
+    catSelect.value = this.config.selectedCategory ?? '';
 
     // Handle change
-    select.addEventListener('change', () => {
-      const value = select.value || null;
+    catSelect.addEventListener('change', () => {
+      const value = catSelect.value || null;
       this.config.selectedCategory = value;
       this.onCategoryChange(value);
     });
 
-    container.appendChild(label);
-    container.appendChild(select);
+    catGroup.appendChild(catLabel);
+    catGroup.appendChild(catSelect);
+    container.appendChild(catGroup);
+
+    // Embedding model toggle
+    const embGroup = document.createElement('div');
+    embGroup.className = 'ec-selector-group ec-embedding-toggle';
+
+    const embLabel = document.createElement('label');
+    embLabel.className = 'ec-category-label';
+    embLabel.textContent = this.config.labels.embeddingModelLabel;
+
+    const embToggle = document.createElement('div');
+    embToggle.className = 'ec-toggle-buttons';
+
+    const fastBtn = document.createElement('button');
+    fastBtn.className = 'ec-toggle-btn' + (this.config.selectedEmbeddingModel === 'nomic' ? ' ec-active' : '');
+    fastBtn.textContent = this.config.labels.embeddingFast;
+    fastBtn.addEventListener('click', () => {
+      this.config.selectedEmbeddingModel = 'nomic';
+      fastBtn.classList.add('ec-active');
+      preciseBtn.classList.remove('ec-active');
+      this.onEmbeddingModelChange('nomic');
+    });
+
+    const preciseBtn = document.createElement('button');
+    preciseBtn.className = 'ec-toggle-btn' + (this.config.selectedEmbeddingModel === 'qwen' ? ' ec-active' : '');
+    preciseBtn.textContent = this.config.labels.embeddingPrecise;
+    preciseBtn.addEventListener('click', () => {
+      this.config.selectedEmbeddingModel = 'qwen';
+      preciseBtn.classList.add('ec-active');
+      fastBtn.classList.remove('ec-active');
+      this.onEmbeddingModelChange('qwen');
+    });
+
+    embToggle.appendChild(fastBtn);
+    embToggle.appendChild(preciseBtn);
+    embGroup.appendChild(embLabel);
+    embGroup.appendChild(embToggle);
+    container.appendChild(embGroup);
 
     return container;
   }

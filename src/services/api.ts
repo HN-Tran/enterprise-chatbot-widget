@@ -14,7 +14,8 @@ export class ApiClient {
     callbacks: StreamCallbacks,
     history?: { role: 'user' | 'assistant'; content: string }[],
     includeArchived?: boolean,
-    category?: string | null
+    category?: string | null,
+    embeddingModel?: 'nomic' | 'qwen'
   ): Promise<void> {
     // Abort any existing request
     this.abort();
@@ -30,6 +31,9 @@ export class ApiClient {
       }
       if (category) {
         body.categories = [category];
+      }
+      if (embeddingModel) {
+        body.embedding_model = embeddingModel;
       }
 
       const response = await fetch(`${this.baseUrl}/search/stream`, {

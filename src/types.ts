@@ -62,6 +62,9 @@ export interface ResolvedConfig {
     collapse: string;
     allCategories: string;
     categoryLabel: string;
+    embeddingModelLabel: string;
+    embeddingFast: string;
+    embeddingPrecise: string;
   };
   sessionTimeout: number;
   features: {
@@ -72,6 +75,7 @@ export interface ResolvedConfig {
   };
   categories: CategoryOption[];
   selectedCategory: string | null;  // null = all categories
+  selectedEmbeddingModel: 'nomic' | 'qwen';  // nomic = fast, qwen = precise
 }
 
 // Chat messages

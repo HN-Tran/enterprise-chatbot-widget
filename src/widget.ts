@@ -38,7 +38,8 @@ export class ChatWidget {
       (messageId, feedback, comment) => this.handleFeedback(messageId, feedback, comment),
       () => this.handleNewChat(),
       (settings) => this.handleSettingsChange(settings),
-      (category) => this.handleCategoryChange(category)
+      (category) => this.handleCategoryChange(category),
+      (model) => this.handleEmbeddingModelChange(model)
     );
 
     this.container.appendChild(this.bubble.getElement());
@@ -99,6 +100,9 @@ export class ChatWidget {
         collapse: 'Verkleinern',
         allCategories: 'Alle Kategorien',
         categoryLabel: 'Kategorie',
+        embeddingModelLabel: 'Suchmodus',
+        embeddingFast: 'Schnell',
+        embeddingPrecise: 'Präzise',
       },
       sessionTimeout: userConfig.sessionTimeout ?? 30,
       features: {
@@ -116,6 +120,7 @@ export class ChatWidget {
         { value: 'E', label: 'E' },
       ],
       selectedCategory: this.storage.getSetting('selectedCategory', null),
+      selectedEmbeddingModel: this.storage.getSetting('selectedEmbeddingModel', 'qwen'),
     };
   }
 
@@ -219,7 +224,7 @@ export class ChatWidget {
             this.bubble.getMascot().setState('idle');
           }, 2000);
         },
-      }, history, this.config.features.includeArchived, this.config.selectedCategory);
+      }, history, this.config.features.includeArchived, this.config.selectedCategory, this.config.selectedEmbeddingModel);
     } catch (error) {
       this.window.hideThinking();
       this.window.showError(error instanceof Error ? error.message : 'Unknown error');
@@ -253,6 +258,11 @@ export class ChatWidget {
   private handleCategoryChange(category: string | null): void {
     this.config.selectedCategory = category;
     this.storage.setSetting('selectedCategory', category);
+  }
+
+  private handleEmbeddingModelChange(model: 'nomic' | 'qwen'): void {
+    this.config.selectedEmbeddingModel = model;
+    this.storage.setSetting('selectedEmbeddingModel', model);
   }
 
   private handleFeedback(messageId: string, feedback: 'up' | 'down', comment?: string): void {

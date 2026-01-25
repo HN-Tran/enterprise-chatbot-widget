@@ -665,10 +665,20 @@ function getStyles(config: ResolvedConfig): string {
     .ec-category-selector {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 16px;
       padding: 8px 16px;
       border-top: 1px solid #e0e0e0;
       background: #fafafa;
+    }
+
+    .ec-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ec-selector-group:first-child {
+      flex: 1;
     }
 
     .ec-category-label {
@@ -698,6 +708,42 @@ function getStyles(config: ResolvedConfig): string {
 
     .ec-category-select:hover {
       border-color: #bbb;
+    }
+
+    /* Embedding Toggle */
+    .ec-toggle-buttons {
+      display: flex;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .ec-toggle-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      background: white;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .ec-toggle-btn:first-child {
+      border-right: 1px solid #ddd;
+    }
+
+    .ec-toggle-btn:hover {
+      background: #f5f5f5;
+    }
+
+    .ec-toggle-btn.ec-active {
+      background: ${primaryColor};
+      color: white;
+    }
+
+    .ec-toggle-btn.ec-active:hover {
+      background: ${primaryColor};
     }
 
     /* ===== Feedback Prompt ===== */
