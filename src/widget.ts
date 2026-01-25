@@ -35,9 +35,10 @@ export class ChatWidget {
       this.config,
       () => this.close(),
       (query) => this.handleQuery(query),
-      (messageId, feedback) => this.handleFeedback(messageId, feedback),
+      (messageId, feedback, comment) => this.handleFeedback(messageId, feedback, comment),
       () => this.handleNewChat(),
-      (settings) => this.handleSettingsChange(settings)
+      (settings) => this.handleSettingsChange(settings),
+      (category) => this.handleCategoryChange(category)
     );
 
     this.container.appendChild(this.bubble.getElement());
@@ -85,6 +86,10 @@ export class ChatWidget {
         loading: 'Suche läuft...',
         error: 'Ein Fehler ist aufgetreten',
         feedbackPrompt: 'Hilfreich?',
+        feedbackCommentPlaceholder: 'Möchten Sie uns mehr mitteilen? (optional)',
+        feedbackSubmit: 'Absenden',
+        feedbackNudge: 'Ihr Kommentar hilft uns, besser zu werden!',
+        feedbackThankYou: 'Danke für Ihr Feedback!',
         newChat: 'Neuer Chat',
         welcomeMessage: 'Hallo! Wie kann ich Ihnen helfen?',
         settings: 'Einstellungen',
@@ -92,6 +97,8 @@ export class ChatWidget {
         includeArchivedLabel: 'Archivierte Dokumente einbeziehen',
         expand: 'Vergrößern',
         collapse: 'Verkleinern',
+        allCategories: 'Alle Kategorien',
+        categoryLabel: 'Kategorie',
       },
       sessionTimeout: userConfig.sessionTimeout ?? 30,
       features: {
@@ -100,6 +107,15 @@ export class ChatWidget {
         chatHistory: this.storage.getSetting('chatHistory', userConfig.features?.chatHistory ?? true),
         includeArchived: this.storage.getSetting('includeArchived', userConfig.features?.includeArchived ?? false),
       },
+      // Default categories - replace this array to customize
+      categories: userConfig.categories ?? [
+        { value: 'A', label: 'A' },
+        { value: 'B', label: 'B' },
+        { value: 'C', label: 'C' },
+        { value: 'D', label: 'D' },
+        { value: 'E', label: 'E' },
+      ],
+      selectedCategory: this.storage.getSetting('selectedCategory', null),
     };
   }
 
@@ -203,7 +219,7 @@ export class ChatWidget {
             this.bubble.getMascot().setState('idle');
           }, 2000);
         },
-      }, history, this.config.features.includeArchived);
+      }, history, this.config.features.includeArchived, this.config.selectedCategory);
     } catch (error) {
       this.window.hideThinking();
       this.window.showError(error instanceof Error ? error.message : 'Unknown error');
@@ -234,7 +250,12 @@ export class ChatWidget {
     this.storage.setSetting('includeArchived', settings.includeArchived);
   }
 
-  private handleFeedback(messageId: string, feedback: 'up' | 'down'): void {
+  private handleCategoryChange(category: string | null): void {
+    this.config.selectedCategory = category;
+    this.storage.setSetting('selectedCategory', category);
+  }
+
+  private handleFeedback(messageId: string, feedback: 'up' | 'down', comment?: string): void {
     this.storage.updateMessage(messageId, { feedback });
 
     // Find the message and preceding user query
@@ -256,6 +277,11 @@ export class ChatWidget {
       answer: assistantMsg.content,
       feedback: feedback,
     };
+
+    // Include comment if provided
+    if (comment && comment.trim()) {
+      payload.comment = comment.trim();
+    }
 
     // Include full chat history if enabled
     if (this.config.features.chatHistory) {

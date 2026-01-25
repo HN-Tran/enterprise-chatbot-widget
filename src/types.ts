@@ -1,6 +1,12 @@
 // Build-time constant (injected by Vite)
 declare const __API_URL__: string;
 
+// Category option for dropdown
+export interface CategoryOption {
+  value: string;  // Value sent to API
+  label: string;  // Display label
+}
+
 // Widget configuration
 export interface WidgetConfig {
   apiUrl?: string;  // Optional - uses baked-in default if not provided
@@ -21,6 +27,8 @@ export interface WidgetConfig {
     chatHistory?: boolean;  // Send previous messages for context
     includeArchived?: boolean;  // Include archived documents in search
   };
+  // Categories for filtering - easily replaceable
+  categories?: CategoryOption[];
 }
 
 // Internal resolved config with defaults applied
@@ -41,6 +49,10 @@ export interface ResolvedConfig {
     loading: string;
     error: string;
     feedbackPrompt: string;
+    feedbackCommentPlaceholder: string;
+    feedbackSubmit: string;
+    feedbackNudge: string;
+    feedbackThankYou: string;
     newChat: string;
     welcomeMessage: string;
     settings: string;
@@ -48,6 +60,8 @@ export interface ResolvedConfig {
     includeArchivedLabel: string;
     expand: string;
     collapse: string;
+    allCategories: string;
+    categoryLabel: string;
   };
   sessionTimeout: number;
   features: {
@@ -56,6 +70,8 @@ export interface ResolvedConfig {
     chatHistory: boolean;
     includeArchived: boolean;
   };
+  categories: CategoryOption[];
+  selectedCategory: string | null;  // null = all categories
 }
 
 // Chat messages

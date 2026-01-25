@@ -564,6 +564,27 @@ function getStyles(config: ResolvedConfig): string {
       color: ${primaryColor};
     }
 
+    .ec-action-btn.ec-locked {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .ec-action-btn.ec-locked:hover {
+      background: none;
+      border-color: #ddd;
+    }
+
+    .ec-action-btn.ec-locked.ec-active {
+      opacity: 1;
+      background: ${primaryColor}15;
+      border-color: ${primaryColor};
+    }
+
+    .ec-action-btn.ec-locked.ec-active:hover {
+      background: ${primaryColor}15;
+      border-color: ${primaryColor};
+    }
+
     .ec-action-btn svg {
       width: 14px;
       height: 14px;
@@ -640,6 +661,45 @@ function getStyles(config: ResolvedConfig): string {
       fill: white;
     }
 
+    /* ===== Category Selector ===== */
+    .ec-category-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-top: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+
+    .ec-category-label {
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .ec-category-select {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .ec-category-select:focus {
+      border-color: ${primaryColor};
+    }
+
+    .ec-category-select:hover {
+      border-color: #bbb;
+    }
+
     /* ===== Feedback Prompt ===== */
     .ec-feedback {
       display: flex;
@@ -647,10 +707,113 @@ function getStyles(config: ResolvedConfig): string {
       gap: 8px;
       font-size: 12px;
       color: #888;
+      position: relative;
     }
 
     .ec-feedback-prompt {
       margin-right: 4px;
+    }
+
+    /* ===== Feedback Dialog ===== */
+    .ec-feedback-dialog {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      min-width: 280px;
+      z-index: 10;
+      animation: ec-slide-up 0.2s ease-out;
+    }
+
+    .ec-feedback-nudge {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ec-feedback-nudge::before {
+      content: '\\2728';
+      font-size: 14px;
+    }
+
+    .ec-feedback-textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 70px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .ec-feedback-textarea:focus {
+      border-color: ${primaryColor};
+    }
+
+    .ec-feedback-textarea::placeholder {
+      color: #999;
+    }
+
+    .ec-feedback-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+    .ec-feedback-skip {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ec-feedback-skip:hover {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
+
+    .ec-feedback-submit {
+      background: ${primaryColor};
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ec-feedback-submit:hover {
+      opacity: 0.9;
+    }
+
+    .ec-feedback-thankyou {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      margin-bottom: 8px;
+      background: #4caf50;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      animation: ec-fade-in 0.2s ease-out;
+      white-space: nowrap;
     }
 
     /* ===== Scrollbar ===== */

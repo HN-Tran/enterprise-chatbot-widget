@@ -15,17 +15,19 @@ export class ChatWindow {
   private isExpanded = false;
   private onClose: () => void;
   private onSend: (query: string) => void;
-  private onFeedback: (messageId: string, feedback: 'up' | 'down') => void;
+  private onFeedback: (messageId: string, feedback: 'up' | 'down', comment?: string) => void;
   private onNewChat: () => void;
   private onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void;
+  private onCategoryChange: (category: string | null) => void;
 
   constructor(
     config: ResolvedConfig,
     onClose: () => void,
     onSend: (query: string) => void,
-    onFeedback: (messageId: string, feedback: 'up' | 'down') => void,
+    onFeedback: (messageId: string, feedback: 'up' | 'down', comment?: string) => void,
     onNewChat: () => void,
-    onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void
+    onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void,
+    onCategoryChange: (category: string | null) => void
   ) {
     this.config = config;
     this.onClose = onClose;
@@ -33,6 +35,7 @@ export class ChatWindow {
     this.onFeedback = onFeedback;
     this.onNewChat = onNewChat;
     this.onSettingsChange = onSettingsChange;
+    this.onCategoryChange = onCategoryChange;
 
     this.element = document.createElement('div');
     this.element.className = 'ec-window ec-hidden';
@@ -48,6 +51,10 @@ export class ChatWindow {
       this.onFeedback
     );
     this.element.appendChild(this.messageList.getElement());
+
+    // Category selector (above input)
+    const categorySelector = this.createCategorySelector();
+    this.element.appendChild(categorySelector);
 
     // Input area
     this.inputArea = new InputArea(config, this.onSend);
@@ -297,6 +304,47 @@ export class ChatWindow {
       }
     }
   };
+
+  private createCategorySelector(): HTMLDivElement {
+    const container = document.createElement('div');
+    container.className = 'ec-category-selector';
+
+    const label = document.createElement('label');
+    label.className = 'ec-category-label';
+    label.textContent = this.config.labels.categoryLabel;
+
+    const select = document.createElement('select');
+    select.className = 'ec-category-select';
+
+    // Add "All categories" option
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = this.config.labels.allCategories;
+    select.appendChild(allOption);
+
+    // Add category options
+    this.config.categories.forEach((cat) => {
+      const option = document.createElement('option');
+      option.value = cat.value;
+      option.textContent = cat.label;
+      select.appendChild(option);
+    });
+
+    // Set initial value
+    select.value = this.config.selectedCategory ?? '';
+
+    // Handle change
+    select.addEventListener('change', () => {
+      const value = select.value || null;
+      this.config.selectedCategory = value;
+      this.onCategoryChange(value);
+    });
+
+    container.appendChild(label);
+    container.appendChild(select);
+
+    return container;
+  }
 
   private showToast(message: string): void {
     // Remove existing toast

@@ -8,7 +8,7 @@ export class MessageList {
   private element: HTMLDivElement;
   private config: ResolvedConfig;
   private onShowToast: (message: string) => void;
-  private onFeedback: (messageId: string, feedback: 'up' | 'down') => void;
+  private onFeedback: (messageId: string, feedback: 'up' | 'down', comment?: string) => void;
   private thinkingElement: HTMLDivElement | null = null;
   private streamingElement: HTMLDivElement | null = null;
   private streamingMessageId: string | null = null;
@@ -17,7 +17,7 @@ export class MessageList {
   constructor(
     config: ResolvedConfig,
     onShowToast: (message: string) => void,
-    onFeedback: (messageId: string, feedback: 'up' | 'down') => void
+    onFeedback: (messageId: string, feedback: 'up' | 'down', comment?: string) => void
   ) {
     this.config = config;
     this.onShowToast = onShowToast;
