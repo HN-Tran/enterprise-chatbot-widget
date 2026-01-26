@@ -12,6 +12,8 @@ export class ChatWidget {
   private config: ResolvedConfig;
   private storage: StorageService;
   private api: ApiClient;
+  private host: HTMLElement;
+  private shadow: ShadowRoot;
   private container: HTMLDivElement;
   private bubble: ChatBubble;
   private window: ChatWindow;
@@ -22,8 +24,13 @@ export class ChatWidget {
     this.config = this.resolveConfig(userConfig);
     this.api = new ApiClient(this.config.apiUrl);
 
-    // Inject styles
-    injectStyles(this.config);
+    // Create Shadow DOM host for CSS isolation
+    this.host = document.createElement('div');
+    this.host.id = 'enterprise-chat-host';
+    this.shadow = this.host.attachShadow({ mode: 'open' });
+
+    // Inject styles into shadow root
+    injectStyles(this.config, this.shadow);
 
     // Create container
     this.container = document.createElement('div');
@@ -45,8 +52,11 @@ export class ChatWidget {
     this.container.appendChild(this.bubble.getElement());
     this.container.appendChild(this.window.getElement());
 
-    // Mount to DOM
-    document.body.appendChild(this.container);
+    // Mount inside shadow root
+    this.shadow.appendChild(this.container);
+
+    // Mount host to DOM
+    document.body.appendChild(this.host);
 
     // Restore session
     this.restoreSession();
@@ -66,7 +76,7 @@ export class ChatWidget {
 
   destroy(): void {
     this.api.abort();
-    this.container.remove();
+    this.host.remove();
   }
 
   private resolveConfig(userConfig: WidgetConfig): ResolvedConfig {

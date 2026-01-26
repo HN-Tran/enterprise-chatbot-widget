@@ -97,6 +97,8 @@ export interface Source {
   snippet: string;
   confidence: number;
   uri?: string;
+  download_url?: string;
+  source_type?: string;  // File type from DB (pdf, docx, xlsx, html, etc.)
 }
 
 // RAG API request

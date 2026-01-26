@@ -1,15 +1,16 @@
 import type { ResolvedConfig } from '../types';
 
-export function injectStyles(config: ResolvedConfig): void {
+export function injectStyles(config: ResolvedConfig, root?: ShadowRoot): void {
+  const target = root || document.head;
   const styleId = 'enterprise-chat-styles';
 
   // Don't inject twice
-  if (document.getElementById(styleId)) return;
+  if (target.querySelector(`#${styleId}`)) return;
 
   const style = document.createElement('style');
   style.id = styleId;
   style.textContent = getStyles(config);
-  document.head.appendChild(style);
+  target.appendChild(style);
 }
 
 function getStyles(config: ResolvedConfig): string {
@@ -65,10 +66,15 @@ function getStyles(config: ResolvedConfig): string {
     }
 
     /* ===== Base Container ===== */
+    :host {
+      all: initial;
+    }
+
     .ec-widget {
       font-family: ${fontFamily};
       font-size: 14px;
       line-height: 1.5;
+      color: #333;
       position: fixed;
       bottom: 20px;
       ${isLeft ? 'left: 20px;' : 'right: 20px;'}
@@ -367,6 +373,9 @@ function getStyles(config: ResolvedConfig): string {
       padding: 12px 16px;
       border-radius: 16px;
       word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      overflow: hidden;
     }
 
     .ec-message--user .ec-message-content {
@@ -503,12 +512,28 @@ function getStyles(config: ResolvedConfig): string {
       border-radius: 8px;
       padding: 10px 12px;
       font-size: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, border-color 0.2s;
     }
 
-    .ec-source:hover {
+    .ec-source--clickable {
+      cursor: pointer;
+    }
+
+    .ec-source--clickable:hover {
       background: #f0f0f0;
+      border-color: ${primaryColor};
+    }
+
+    .ec-source-type {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      background: ${primaryColor}20;
+      color: ${primaryColor};
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-right: 4px;
+      vertical-align: middle;
     }
 
     .ec-source-title {
