@@ -303,6 +303,23 @@ export class ChatWidget {
       payload.comment = comment.trim();
     }
 
+    // Include sources with ranking order
+    if (assistantMsg.sources && assistantMsg.sources.length > 0) {
+      payload.sources = assistantMsg.sources;
+    }
+
+    // Include current category and embedding model
+    if (this.config.selectedCategory) {
+      payload.category = this.config.selectedCategory;
+    }
+    payload.embedding_model = this.config.selectedEmbeddingModel;
+
+    // Include settings
+    payload.settings = {
+      chatHistory: this.config.features.chatHistory,
+      includeArchived: this.config.features.includeArchived,
+    };
+
     // Include full chat history if enabled
     if (this.config.features.chatHistory) {
       payload.history = messages.slice(0, msgIndex + 1).map((m) => ({
