@@ -82,6 +82,7 @@ export class FeedbackButtons {
     textarea.className = 'ec-feedback-textarea';
     textarea.placeholder = this.config.labels.feedbackCommentPlaceholder;
     textarea.rows = 3;
+    textarea.maxLength = 2000;
     this.dialog.appendChild(textarea);
 
     // Button row
@@ -111,31 +112,14 @@ export class FeedbackButtons {
 
     // Focus textarea
     setTimeout(() => textarea.focus(), 0);
-
-    // Close on click outside (with delay to prevent immediate close)
-    setTimeout(() => {
-      document.addEventListener('click', this.handleOutsideClick);
-    }, 0);
   }
 
   private hideDialog(): void {
     if (this.dialog) {
       this.dialog.remove();
       this.dialog = null;
-      document.removeEventListener('click', this.handleOutsideClick);
     }
   }
-
-  private handleOutsideClick = (e: MouseEvent): void => {
-    if (this.dialog && !this.element.contains(e.target as Node)) {
-      // Cancel if clicking outside without submitting
-      if (!this.submitted) {
-        this.thumbUp.classList.remove('ec-active');
-        this.thumbDown.classList.remove('ec-active');
-      }
-      this.hideDialog();
-    }
-  };
 
   private submitFeedback(feedback: 'up' | 'down', comment: string): void {
     this.submitted = true;

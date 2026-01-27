@@ -27,6 +27,7 @@ FROM nginx:alpine AS serve
 
 COPY --from=builder /app/dist/chatbot-widget.js /usr/share/nginx/html/
 COPY --from=builder /app/demo/index.html /usr/share/nginx/html/index.html
+COPY --from=builder /app/demo/static/ /usr/share/nginx/html/static/
 
 # Fix the script path in demo HTML
 RUN sed -i 's|../dist/chatbot-widget.js|chatbot-widget.js|g' /usr/share/nginx/html/index.html

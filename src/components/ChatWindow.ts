@@ -300,9 +300,10 @@ export class ChatWindow {
   }
 
   private handleOutsideClick = (e: MouseEvent): void => {
-    if (this.settingsPanel && !this.settingsPanel.contains(e.target as Node)) {
+    const path = e.composedPath();
+    if (this.settingsPanel && !path.includes(this.settingsPanel)) {
       const settingsBtn = this.element.querySelector('[aria-label="' + this.config.labels.settings + '"]');
-      if (!settingsBtn?.contains(e.target as Node)) {
+      if (!settingsBtn || !path.includes(settingsBtn)) {
         this.hideSettings();
       }
     }
