@@ -130,7 +130,7 @@ export class ChatWidget {
         { value: 'E', label: 'E' },
       ],
       selectedCategory: this.storage.getSetting('selectedCategory', null),
-      selectedEmbeddingModel: this.storage.getSetting('selectedEmbeddingModel', 'qwen'),
+      selectedEmbeddingModel: this.storage.getSetting('selectedEmbeddingModel', 'nomic'),
     };
   }
 

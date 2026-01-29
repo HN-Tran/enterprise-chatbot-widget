@@ -32,9 +32,8 @@ export class ApiClient {
       if (category) {
         body.categories = [category];
       }
-      if (embeddingModel) {
-        body.embedding_model = embeddingModel;
-      }
+      // Always send embedding_model (defaults to 'nomic' if not specified)
+      body.embedding_model = embeddingModel || 'nomic';
 
       const response = await fetch(`${this.baseUrl}/search/stream`, {
         method: 'POST',
