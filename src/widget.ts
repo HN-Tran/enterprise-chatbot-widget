@@ -329,7 +329,8 @@ export class ChatWidget {
     }
 
     // Send to backend
-    fetch(`${this.config.apiUrl}/feedback`, {
+    const baseUrl = this.config.apiUrl.replace(/\/$/, '');
+    fetch(`${baseUrl}/feedback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
