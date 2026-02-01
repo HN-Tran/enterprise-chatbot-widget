@@ -4,3 +4,6 @@ dist
 .gitignore
 *.md
 .env*
+k8s
+Dockerfile
+.dockerignore

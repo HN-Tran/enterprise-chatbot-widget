@@ -69,6 +69,10 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - test8.example.com
+      secretName: test8-tls-secret
   rules:
     - host: test8.example.com
       http:

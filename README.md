@@ -5,18 +5,21 @@ Embeddable chatbot widget for the Enterprise RAG system. Deployable via a single
 ## Features
 
 - **Streaming responses** - Real-time answer display with typing animation
-- **Source citations** - Inline references to source documents
-- **Session persistence** - Chat history preserved across page navigation (sessionStorage)
+- **Source citations** - Inline references with type badges and download links
+- **Category filtering** - Filter search by document categories
+- **Embedding model toggle** - Switch between fast (nomic) and precise (qwen) search
+- **Include archived** - Option to include archived documents in search
+- **Session persistence** - Chat history preserved across page navigation
 - **Expandable window** - Toggle between normal and large view
-- **Settings panel** - Toggle chat history context on/off
-- **Feedback** - Thumbs up/down saved to backend
+- **Settings panel** - Configure search preferences
+- **Feedback** - Thumbs up/down with optional comments
 - **Copy button** - One-click copy of answers
-- **Animated mascot** - Friendly robot with state animations
+- **Shadow DOM isolation** - Styles don't leak into host page
 - **German UI** - All labels in German (customizable)
 
 ## Quick Start
 
-### Option 1: Docker Build (Recommended)
+### Docker Build
 
 ```bash
 # Build with your API endpoint baked in
@@ -25,24 +28,10 @@ VITE_API_URL=https://your-rag-api.example.com docker compose --profile build up 
 # Output: ./dist/chatbot-widget.js
 ```
 
-### Option 2: Local Build
+### Docker Serve (Testing)
 
 ```bash
-# Install dependencies
-npm install
-
-# Build with custom API URL
-VITE_API_URL=https://your-rag-api.example.com npm run build
-
-# Output: ./dist/chatbot-widget.js
-```
-
-### Option 3: Docker Serve (Testing)
-
-```bash
-# Serve the demo page with widget
 VITE_API_URL=http://localhost:8080 docker compose --profile serve up --build
-
 # Open http://localhost:8000
 ```
 
@@ -60,9 +49,9 @@ Or with custom options:
 <script src="chatbot-widget.js"></script>
 <script>
   EnterpriseChat.init({
-    position: 'bottom-left',           // 'bottom-right' (default) or 'bottom-left'
+    position: 'bottom-right',
     theme: {
-      primaryColor: '#1a73e8',         // Brand color
+      primaryColor: '#1a73e8',
       fontFamily: 'Arial, sans-serif'
     },
     labels: {
@@ -70,11 +59,16 @@ Or with custom options:
       placeholder: 'Stellen Sie eine Frage...',
       welcomeMessage: 'Hallo! Wie kann ich Ihnen helfen?'
     },
-    sessionTimeout: 30,                // Minutes before session expires
+    categories: [
+      { value: 'HR', label: 'Personal' },
+      { value: 'IT', label: 'IT-Support' },
+      { value: 'Finance', label: 'Finanzen' }
+    ],
     features: {
       copyButton: true,
       feedbackButtons: true,
-      chatHistory: true                // Send context for follow-up questions
+      chatHistory: true,
+      includeArchived: false
     }
   });
 </script>
@@ -82,34 +76,32 @@ Or with custom options:
 
 ## Configuration
 
-### Build-time Configuration
+### Build-time
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `VITE_API_URL` | RAG API endpoint (baked into bundle) | `http://localhost:8080` |
 
-### Runtime Configuration
-
-All options passed to `EnterpriseChat.init()`:
+### Runtime
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `position` | `'bottom-right' \| 'bottom-left'` | `'bottom-right'` | Widget position |
 | `theme.primaryColor` | `string` | `'#1a73e8'` | Primary brand color |
 | `theme.fontFamily` | `string` | System fonts | Font family |
-| `labels.*` | `string` | German defaults | UI labels |
+| `labels.*` | `string` | German defaults | UI labels (title, placeholder, etc.) |
+| `categories` | `Array<{value, label}>` | `[]` | Category filter options |
 | `sessionTimeout` | `number` | `30` | Session timeout in minutes |
 | `features.copyButton` | `boolean` | `true` | Show copy button |
 | `features.feedbackButtons` | `boolean` | `true` | Show thumbs up/down |
 | `features.chatHistory` | `boolean` | `true` | Send chat context |
+| `features.includeArchived` | `boolean` | `false` | Include archived docs |
 
 ## API Requirements
 
-The widget expects a RAG API with the following endpoint:
-
 ### POST /search/stream
 
-Server-Sent Events (SSE) streaming endpoint.
+SSE streaming endpoint.
 
 **Request:**
 ```json
@@ -119,14 +111,17 @@ Server-Sent Events (SSE) streaming endpoint.
   "history": [
     {"role": "user", "content": "previous question"},
     {"role": "assistant", "content": "previous answer"}
-  ]
+  ],
+  "include_archived": false,
+  "categories": ["HR"],
+  "embedding_model": "nomic"
 }
 ```
 
 **SSE Events:**
 - `meta` - `{"complexity": 1.0, "hits": 5}`
-- `sources` - `[{"index": 1, "title": "...", "location": "...", "snippet": "..."}]`
-- `chunk` - `"text fragment"` (streamed answer)
+- `sources` - `[{"index": 1, "title": "...", "location": "...", "snippet": "...", "source_type": "pdf", "download_url": "..."}]`
+- `chunk` - `"text fragment"`
 - `done` - `{"status": "complete"}`
 - `error` - `{"error": "message"}`
 
@@ -136,70 +131,53 @@ Server-Sent Events (SSE) streaming endpoint.
 {
   "query": "user question",
   "answer": "assistant response",
-  "feedback": "up"  // or "down"
+  "feedback": "up",
+  "comment": "optional comment",
+  "sources": [...],
+  "category": "HR",
+  "embedding_model": "nomic",
+  "settings": {
+    "chatHistory": true,
+    "includeArchived": false
+  }
 }
 ```
 
-### CORS
+## Kubernetes Deployment
 
-Enable CORS on your API:
-
-```python
-from fastapi.middleware.cors import CORSMiddleware
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start dev server (with hot reload)
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
+See `k8s/deployment.yaml` for Kubernetes manifests including Deployment, Service, and Ingress.
 
 ## Project Structure
 
 ```
 enterprise-chatbot-widget/
 ├── src/
-│   ├── index.ts              # Entry point, auto-init
-│   ├── widget.ts             # Main widget class
-│   ├── types.ts              # TypeScript interfaces
+│   ├── index.ts                 # Entry point, auto-init
+│   ├── widget.ts                # Main widget class
+│   ├── types.ts                 # TypeScript interfaces
 │   ├── components/
-│   │   ├── ChatBubble.ts     # Floating button
-│   │   ├── ChatWindow.ts     # Chat panel
-│   │   ├── MessageList.ts    # Message rendering
-│   │   ├── InputArea.ts      # Text input
-│   │   ├── Mascot.ts         # Animated robot
-│   │   ├── SourceCard.ts     # Citation display
-│   │   ├── CopyButton.ts     # Copy to clipboard
-│   │   └── FeedbackButtons.ts
+│   │   ├── ChatBubble.ts        # Floating button with mascot
+│   │   ├── ChatWindow.ts        # Chat panel and settings
+│   │   ├── MessageList.ts       # Message rendering
+│   │   ├── InputArea.ts         # Text input
+│   │   ├── Mascot.ts            # Animated robot
+│   │   ├── SourceCard.ts        # Citation display
+│   │   ├── CopyButton.ts        # Copy to clipboard
+│   │   └── FeedbackButtons.ts   # Thumbs up/down
 │   ├── services/
-│   │   ├── api.ts            # SSE streaming client
-│   │   └── storage.ts        # sessionStorage wrapper
+│   │   ├── api.ts               # SSE streaming client
+│   │   └── storage.ts           # sessionStorage wrapper
 │   └── styles/
-│       └── styles.ts         # CSS-in-JS
+│       └── styles.ts            # CSS-in-JS styles
 ├── dist/
-│   └── chatbot-widget.js     # Built bundle (~10KB gzipped)
+│   └── chatbot-widget.js        # Built bundle
 ├── demo/
-│   └── index.html            # Test page
-├── Dockerfile
-├── docker-compose.yml
+│   ├── index.html               # Test page
+│   └── static/                  # Static assets
+├── k8s/
+│   └── deployment.yaml          # Kubernetes manifests
+├── Dockerfile                   # Multi-stage build
+├── docker-compose.yml           # Build and serve profiles
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
