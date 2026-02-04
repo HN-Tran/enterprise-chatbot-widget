@@ -466,6 +466,97 @@ function getStyles(config: ResolvedConfig): string {
       cursor: default;
     }
 
+    /* ===== Thinking Block (Reasoning) ===== */
+    .ec-thinking-block {
+      max-width: 85%;
+      border-radius: 12px;
+      background: #e8eaf6;
+      margin-bottom: 4px;
+      overflow: hidden;
+    }
+
+    .ec-thinking-block-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+      color: #5c6bc0;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .ec-thinking-block-header:hover {
+      background: rgba(92, 107, 192, 0.08);
+    }
+
+    .ec-thinking-block-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .ec-thinking-block-label {
+      flex: 1;
+    }
+
+    .ec-thinking-block-chevron {
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .ec-thinking-block-chevron svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .ec-thinking-block--open .ec-thinking-block-chevron {
+      transform: rotate(180deg);
+    }
+
+    .ec-thinking-block-content {
+      display: none;
+      padding: 0 12px 10px;
+      font-size: 13px;
+      color: #455a64;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    .ec-thinking-block--open .ec-thinking-block-content {
+      display: block;
+    }
+
+    .ec-thinking-block--streaming .ec-thinking-block-header {
+      animation: ec-pulse 1.5s ease-in-out infinite;
+    }
+
+    .ec-thinking-block-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .ec-thinking-block-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .ec-thinking-block-content::-webkit-scrollbar-thumb {
+      background: #b0bec5;
+      border-radius: 2px;
+    }
+
+    /* Markdown inside thinking block */
+    .ec-thinking-block-content p {
+      margin: 0 0 8px 0;
+    }
+
+    .ec-thinking-block-content p:last-child {
+      margin-bottom: 0;
+    }
+
     /* ===== Thinking Indicator ===== */
     .ec-thinking {
       display: flex;

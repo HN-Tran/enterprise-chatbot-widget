@@ -97,6 +97,10 @@ export class ChatWindow {
     this.messageList.startStreaming(messageId);
   }
 
+  appendThinkingChunk(chunk: string): void {
+    this.messageList.appendThinkingChunk(chunk);
+  }
+
   appendChunk(chunk: string): void {
     this.messageList.appendChunk(chunk);
   }

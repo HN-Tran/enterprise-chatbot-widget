@@ -65,6 +65,8 @@ export interface ResolvedConfig {
     embeddingModelLabel: string;
     embeddingFast: string;
     embeddingPrecise: string;
+    thinkingInProgress: string;
+    thinkingComplete: string;
   };
   sessionTimeout: number;
   features: {

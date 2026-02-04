@@ -3,6 +3,7 @@ import { SourceCard } from './SourceCard';
 import { CopyButton } from './CopyButton';
 import { FeedbackButtons } from './FeedbackButtons';
 import { renderMarkdown } from '../utils/markdown';
+import { parseThinkBlocks } from '../utils/thinkParser';
 
 export class MessageList {
   private element: HTMLDivElement;
@@ -12,6 +13,8 @@ export class MessageList {
   private thinkingElement: HTMLDivElement | null = null;
   private streamingElement: HTMLDivElement | null = null;
   private streamingMessageId: string | null = null;
+  private streamingThinkBlock: HTMLDivElement | null = null;
+  private streamingHasContent = false;
   private welcomeElement: HTMLDivElement | null = null;
 
   constructor(
@@ -67,6 +70,8 @@ export class MessageList {
   startStreaming(messageId: string): void {
     this.hideThinking();
     this.streamingMessageId = messageId;
+    this.streamingThinkBlock = null;
+    this.streamingHasContent = false;
 
     this.streamingElement = document.createElement('div');
     this.streamingElement.className = 'ec-message ec-message--assistant';
@@ -77,8 +82,33 @@ export class MessageList {
     this.scrollToBottom();
   }
 
+  appendThinkingChunk(chunk: string): void {
+    if (!this.streamingElement) return;
+
+    // Lazily create thinking block
+    if (!this.streamingThinkBlock) {
+      this.streamingThinkBlock = this.createThinkingBlockElement(true);
+      const contentEl = this.streamingElement.querySelector('.ec-message-content');
+      this.streamingElement.insertBefore(this.streamingThinkBlock, contentEl);
+    }
+
+    const thinkContent = this.streamingThinkBlock.querySelector('.ec-thinking-block-content');
+    if (thinkContent) {
+      thinkContent.textContent += chunk;
+      this.scrollToBottom();
+    }
+  }
+
   appendChunk(chunk: string): void {
     if (!this.streamingElement) return;
+
+    // On first content chunk, collapse the thinking block
+    if (!this.streamingHasContent && this.streamingThinkBlock) {
+      this.streamingThinkBlock.classList.remove('ec-thinking-block--open', 'ec-thinking-block--streaming');
+      const label = this.streamingThinkBlock.querySelector('.ec-thinking-block-label');
+      if (label) label.textContent = this.config.labels.thinkingComplete;
+      this.streamingHasContent = true;
+    }
 
     const content = this.streamingElement.querySelector('.ec-message-content');
     if (content) {
@@ -124,6 +154,8 @@ export class MessageList {
     this.thinkingElement = null;
     this.streamingElement = null;
     this.streamingMessageId = null;
+    this.streamingThinkBlock = null;
+    this.streamingHasContent = false;
     this.welcomeElement = null;
     this.showWelcome();
   }
@@ -147,21 +179,39 @@ export class MessageList {
     msgEl.className = `ec-message ec-message--${message.role}`;
     msgEl.dataset.id = message.id;
 
+    // For assistant messages, parse out thinking blocks
+    let displayContent = message.content;
+    let responseOnly = message.content;
+
+    if (message.role === 'assistant') {
+      const { thinking, response } = parseThinkBlocks(message.content);
+      displayContent = response;
+      responseOnly = response;
+
+      // Add collapsed thinking block if present
+      if (thinking) {
+        const thinkBlock = this.createThinkingBlockElement(false);
+        const thinkContent = thinkBlock.querySelector('.ec-thinking-block-content');
+        if (thinkContent) {
+          thinkContent.innerHTML = renderMarkdown(thinking);
+        }
+        msgEl.appendChild(thinkBlock);
+      }
+    }
+
     // Content
     const content = document.createElement('div');
     content.className = 'ec-message-content';
     if (message.role === 'assistant') {
-      // Render markdown for assistant messages
-      content.innerHTML = renderMarkdown(message.content);
+      content.innerHTML = renderMarkdown(displayContent);
     } else {
-      // Plain text for user messages
       content.textContent = message.content;
     }
     msgEl.appendChild(content);
 
     // Sources AFTER content (for assistant messages) - only show cited sources
     if (message.role === 'assistant' && message.sources && message.sources.length > 0) {
-      const citedSources = this.filterCitedSources(message.content, message.sources);
+      const citedSources = this.filterCitedSources(responseOnly, message.sources);
 
       if (citedSources.length > 0) {
         const sourcesContainer = document.createElement('div');
@@ -177,7 +227,6 @@ export class MessageList {
           sourcesContainer.appendChild(card.getElement());
         });
 
-        // Append sources AFTER content
         msgEl.appendChild(sourcesContainer);
       }
     }
@@ -187,9 +236,9 @@ export class MessageList {
       const actions = document.createElement('div');
       actions.className = 'ec-message-actions';
 
-      // Copy button
+      // Copy button — only copies response content, not thinking
       if (this.config.features.copyButton) {
-        const copyBtn = new CopyButton(message.content, this.config, this.onShowToast);
+        const copyBtn = new CopyButton(responseOnly, this.config, this.onShowToast);
         actions.appendChild(copyBtn.getElement());
       }
 
@@ -206,6 +255,43 @@ export class MessageList {
     }
 
     return msgEl;
+  }
+
+  private createThinkingBlockElement(streaming: boolean): HTMLDivElement {
+    const block = document.createElement('div');
+    block.className = 'ec-thinking-block' +
+      (streaming ? ' ec-thinking-block--open ec-thinking-block--streaming' : '');
+
+    const header = document.createElement('div');
+    header.className = 'ec-thinking-block-header';
+    header.addEventListener('click', () => {
+      block.classList.toggle('ec-thinking-block--open');
+    });
+
+    const icon = document.createElement('span');
+    icon.className = 'ec-thinking-block-icon';
+    icon.textContent = '💭';
+    header.appendChild(icon);
+
+    const label = document.createElement('span');
+    label.className = 'ec-thinking-block-label';
+    label.textContent = streaming
+      ? this.config.labels.thinkingInProgress
+      : this.config.labels.thinkingComplete;
+    header.appendChild(label);
+
+    const chevron = document.createElement('span');
+    chevron.className = 'ec-thinking-block-chevron';
+    chevron.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    header.appendChild(chevron);
+
+    block.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'ec-thinking-block-content';
+    block.appendChild(content);
+
+    return block;
   }
 
   private scrollToBottom(): void {

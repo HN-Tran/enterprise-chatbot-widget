@@ -7,6 +7,7 @@ import { ApiClient } from './services/api';
 import { ChatBubble } from './components/ChatBubble';
 import { ChatWindow } from './components/ChatWindow';
 import { injectStyles } from './styles/styles';
+import { ThinkBlockParser, stripThinkBlocks } from './utils/thinkParser';
 
 export class ChatWidget {
   private config: ResolvedConfig;
@@ -113,6 +114,8 @@ export class ChatWidget {
         embeddingModelLabel: 'Suchmodus',
         embeddingFast: 'Schnell',
         embeddingPrecise: 'Präzise',
+        thinkingInProgress: 'Denken...',
+        thinkingComplete: 'Gedacht',
       },
       sessionTimeout: userConfig.sessionTimeout ?? 30,
       features: {
@@ -162,7 +165,7 @@ export class ChatWidget {
       const messages = this.storage.getMessages();
       history = messages.slice(-10).map((m) => ({
         role: m.role,
-        content: m.content,
+        content: m.role === 'assistant' ? stripThinkBlocks(m.content) : m.content,
       }));
     }
 
@@ -186,6 +189,7 @@ export class ChatWidget {
     let assistantContent = '';
     let sources: Source[] = [];
     let streamingStarted = false;
+    const thinkParser = new ThinkBlockParser();
 
     try {
       await this.api.streamSearch(query, 8, {
@@ -204,10 +208,29 @@ export class ChatWidget {
             streamingStarted = true;
           }
           assistantContent += chunk;
-          this.window.appendChunk(chunk);
+
+          // Route through think parser
+          const segments = thinkParser.feed(chunk);
+          for (const seg of segments) {
+            if (seg.type === 'thinking') {
+              this.window.appendThinkingChunk(seg.text);
+            } else {
+              this.window.appendChunk(seg.text);
+            }
+          }
         },
         onDone: () => {
-          // Create final message
+          // Flush any remaining buffered content
+          const remaining = thinkParser.flush();
+          for (const seg of remaining) {
+            if (seg.type === 'thinking') {
+              this.window.appendThinkingChunk(seg.text);
+            } else {
+              this.window.appendChunk(seg.text);
+            }
+          }
+
+          // Create final message (raw content with <think> tags for session restore)
           const assistantMessage: Message = {
             id: assistantMessageId,
             role: 'assistant',
@@ -291,10 +314,10 @@ export class ChatWidget {
 
     if (!userMsg || assistantMsg.role !== 'assistant') return;
 
-    // Build feedback payload
+    // Build feedback payload (strip thinking blocks from answer)
     const payload: Record<string, unknown> = {
       query: userMsg.content,
-      answer: assistantMsg.content,
+      answer: stripThinkBlocks(assistantMsg.content),
       feedback: feedback,
     };
 
