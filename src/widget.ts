@@ -7,7 +7,7 @@ import { ApiClient } from './services/api';
 import { ChatBubble } from './components/ChatBubble';
 import { ChatWindow } from './components/ChatWindow';
 import { injectStyles } from './styles/styles';
-import { ThinkBlockParser, stripThinkBlocks } from './utils/thinkParser';
+import { stripThinkBlocks } from './utils/thinkParser';
 
 export class ChatWidget {
   private config: ResolvedConfig;
@@ -189,7 +189,7 @@ export class ChatWidget {
     let assistantContent = '';
     let sources: Source[] = [];
     let streamingStarted = false;
-    const thinkParser = new ThinkBlockParser();
+    let thinkingContent = '';
 
     try {
       await this.api.streamSearch(query, 8, {
@@ -201,6 +201,15 @@ export class ChatWidget {
           // Just store sources, don't start streaming yet (wait for first chunk)
           sources = receivedSources;
         },
+        onThinking: (chunk) => {
+          // Start streaming on first thinking chunk
+          if (!streamingStarted) {
+            this.window.startStreaming(assistantMessageId);
+            streamingStarted = true;
+          }
+          thinkingContent += chunk;
+          this.window.appendThinkingChunk(chunk);
+        },
         onChunk: (chunk) => {
           // Start streaming on first chunk (keeps thinking dots until text arrives)
           if (!streamingStarted) {
@@ -208,33 +217,18 @@ export class ChatWidget {
             streamingStarted = true;
           }
           assistantContent += chunk;
-
-          // Route through think parser
-          const segments = thinkParser.feed(chunk);
-          for (const seg of segments) {
-            if (seg.type === 'thinking') {
-              this.window.appendThinkingChunk(seg.text);
-            } else {
-              this.window.appendChunk(seg.text);
-            }
-          }
+          this.window.appendChunk(chunk);
         },
         onDone: () => {
-          // Flush any remaining buffered content
-          const remaining = thinkParser.flush();
-          for (const seg of remaining) {
-            if (seg.type === 'thinking') {
-              this.window.appendThinkingChunk(seg.text);
-            } else {
-              this.window.appendChunk(seg.text);
-            }
-          }
+          // Store content with <think> wrapper for session restore
+          const storedContent = thinkingContent
+            ? `<think>${thinkingContent}</think>${assistantContent}`
+            : assistantContent;
 
-          // Create final message (raw content with <think> tags for session restore)
           const assistantMessage: Message = {
             id: assistantMessageId,
             role: 'assistant',
-            content: assistantContent,
+            content: storedContent,
             sources: sources,
             timestamp: Date.now(),
           };

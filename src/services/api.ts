@@ -104,6 +104,11 @@ export class ApiClient {
           callbacks.onSources?.(sources);
           break;
         }
+        case 'thinking': {
+          const thinking = JSON.parse(dataStr);
+          callbacks.onThinking?.(thinking);
+          break;
+        }
         case 'chunk': {
           // Chunk data is a JSON string containing the text
           const chunk = JSON.parse(dataStr);

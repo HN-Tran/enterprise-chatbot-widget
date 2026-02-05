@@ -161,6 +161,7 @@ export type MascotState = 'idle' | 'greeting' | 'thinking' | 'responding' | 'suc
 export interface StreamCallbacks {
   onMeta?: (meta: SSEMetaEvent) => void;
   onSources?: (sources: Source[]) => void;
+  onThinking?: (chunk: string) => void;
   onChunk?: (chunk: string) => void;
   onDone?: () => void;
   onError?: (error: string) => void;
