@@ -47,7 +47,7 @@ export class ChatWidget {
       () => this.handleNewChat(),
       (settings) => this.handleSettingsChange(settings),
       (category) => this.handleCategoryChange(category),
-      (model) => this.handleEmbeddingModelChange(model)
+      (model) => this.handleLlmModelChange(model)
     );
 
     this.container.appendChild(this.bubble.getElement());
@@ -111,9 +111,9 @@ export class ChatWidget {
         collapse: 'Verkleinern',
         allCategories: 'Alle Kategorien',
         categoryLabel: 'Kategorie',
-        embeddingModelLabel: 'Suchmodus',
-        embeddingFast: 'Schnell',
-        embeddingPrecise: 'Präzise',
+        llmModelLabel: 'Suchmodus',
+        llmFast: 'Schnell',
+        llmPrecise: 'Präzise',
         thinkingInProgress: 'Denken...',
         thinkingComplete: 'Gedacht',
       },
@@ -133,7 +133,7 @@ export class ChatWidget {
         { value: 'E', label: 'E' },
       ],
       selectedCategory: this.storage.getSetting('selectedCategory', null),
-      selectedEmbeddingModel: this.storage.getSetting('selectedEmbeddingModel', 'nomic'),
+      selectedLlmModel: this.storage.getSetting('selectedLlmModel', 'instruct'),
     };
   }
 
@@ -251,7 +251,7 @@ export class ChatWidget {
             this.bubble.getMascot().setState('idle');
           }, 2000);
         },
-      }, history, this.config.features.includeArchived, this.config.selectedCategory, this.config.selectedEmbeddingModel);
+      }, history, this.config.features.includeArchived, this.config.selectedCategory, this.config.selectedLlmModel);
     } catch (error) {
       this.window.hideThinking();
       this.window.showError(error instanceof Error ? error.message : 'Unknown error');
@@ -287,9 +287,9 @@ export class ChatWidget {
     this.storage.setSetting('selectedCategory', category);
   }
 
-  private handleEmbeddingModelChange(model: 'nomic' | 'qwen'): void {
-    this.config.selectedEmbeddingModel = model;
-    this.storage.setSetting('selectedEmbeddingModel', model);
+  private handleLlmModelChange(model: 'instruct' | 'reasoning'): void {
+    this.config.selectedLlmModel = model;
+    this.storage.setSetting('selectedLlmModel', model);
   }
 
   private handleFeedback(messageId: string, feedback: 'up' | 'down', comment?: string): void {
@@ -325,11 +325,11 @@ export class ChatWidget {
       payload.sources = assistantMsg.sources;
     }
 
-    // Include current category and embedding model
+    // Include current category and LLM model
     if (this.config.selectedCategory) {
       payload.category = this.config.selectedCategory;
     }
-    payload.embedding_model = this.config.selectedEmbeddingModel;
+    payload.llm_model = this.config.selectedLlmModel;
 
     // Include settings
     payload.settings = {

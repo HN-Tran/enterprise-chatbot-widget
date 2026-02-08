@@ -15,7 +15,7 @@ export class ApiClient {
     history?: { role: 'user' | 'assistant'; content: string }[],
     includeArchived?: boolean,
     category?: string | null,
-    embeddingModel?: 'nomic' | 'qwen'
+    llmModel?: 'instruct' | 'reasoning'
   ): Promise<void> {
     // Abort any existing request
     this.abort();
@@ -32,8 +32,8 @@ export class ApiClient {
       if (category) {
         body.categories = [category];
       }
-      // Always send embedding_model (defaults to 'nomic' if not specified)
-      body.embedding_model = embeddingModel || 'nomic';
+      // Always send llmModel (defaults to 'instruct' if not specified)
+      body.llmModel = llmModel || 'instruct';
 
       const response = await fetch(`${this.baseUrl}/search/stream`, {
         method: 'POST',

@@ -19,7 +19,7 @@ export class ChatWindow {
   private onNewChat: () => void;
   private onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void;
   private onCategoryChange: (category: string | null) => void;
-  private onEmbeddingModelChange: (model: 'nomic' | 'qwen') => void;
+  private onLlmModelChange: (model: 'instruct' | 'reasoning') => void;
 
   constructor(
     config: ResolvedConfig,
@@ -29,7 +29,7 @@ export class ChatWindow {
     onNewChat: () => void,
     onSettingsChange: (settings: { chatHistory: boolean; includeArchived: boolean }) => void,
     onCategoryChange: (category: string | null) => void,
-    onEmbeddingModelChange: (model: 'nomic' | 'qwen') => void
+    onLlmModelChange: (model: 'instruct' | 'reasoning') => void
   ) {
     this.config = config;
     this.onClose = onClose;
@@ -38,7 +38,7 @@ export class ChatWindow {
     this.onNewChat = onNewChat;
     this.onSettingsChange = onSettingsChange;
     this.onCategoryChange = onCategoryChange;
-    this.onEmbeddingModelChange = onEmbeddingModelChange;
+    this.onLlmModelChange = onLlmModelChange;
 
     this.element = document.createElement('div');
     this.element.className = 'ec-window ec-hidden';
@@ -356,37 +356,37 @@ export class ChatWindow {
     catGroup.appendChild(catSelect);
     container.appendChild(catGroup);
 
-    // Embedding model toggle
+    // LLM model toggle
     const embGroup = document.createElement('div');
     embGroup.className = 'ec-selector-group ec-embedding-toggle';
 
     const embLabel = document.createElement('label');
     embLabel.className = 'ec-category-label';
-    embLabel.textContent = this.config.labels.embeddingModelLabel;
+    embLabel.textContent = this.config.labels.llmModelLabel;
 
     const embToggle = document.createElement('div');
     embToggle.className = 'ec-toggle-buttons';
 
     const fastBtn = document.createElement('button');
     fastBtn.className = 'ec-toggle-btn';
-    fastBtn.dataset.active = String(this.config.selectedEmbeddingModel === 'nomic');
-    fastBtn.textContent = this.config.labels.embeddingFast;
+    fastBtn.dataset.active = String(this.config.selectedLlmModel === 'instruct');
+    fastBtn.textContent = this.config.labels.llmFast;
     fastBtn.addEventListener('click', () => {
-      this.config.selectedEmbeddingModel = 'nomic';
+      this.config.selectedLlmModel = 'instruct';
       fastBtn.dataset.active = 'true';
       preciseBtn.dataset.active = 'false';
-      this.onEmbeddingModelChange('nomic');
+      this.onLlmModelChange('instruct');
     });
 
     const preciseBtn = document.createElement('button');
     preciseBtn.className = 'ec-toggle-btn';
-    preciseBtn.dataset.active = String(this.config.selectedEmbeddingModel === 'qwen');
-    preciseBtn.textContent = this.config.labels.embeddingPrecise;
+    preciseBtn.dataset.active = String(this.config.selectedLlmModel === 'reasoning');
+    preciseBtn.textContent = this.config.labels.llmPrecise;
     preciseBtn.addEventListener('click', () => {
-      this.config.selectedEmbeddingModel = 'qwen';
+      this.config.selectedLlmModel = 'reasoning';
       preciseBtn.dataset.active = 'true';
       fastBtn.dataset.active = 'false';
-      this.onEmbeddingModelChange('qwen');
+      this.onLlmModelChange('reasoning');
     });
 
     embToggle.appendChild(fastBtn);

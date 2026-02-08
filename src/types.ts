@@ -62,9 +62,9 @@ export interface ResolvedConfig {
     collapse: string;
     allCategories: string;
     categoryLabel: string;
-    embeddingModelLabel: string;
-    embeddingFast: string;
-    embeddingPrecise: string;
+    llmModelLabel: string;
+    llmFast: string;
+    llmPrecise: string;
     thinkingInProgress: string;
     thinkingComplete: string;
   };
@@ -77,7 +77,7 @@ export interface ResolvedConfig {
   };
   categories: CategoryOption[];
   selectedCategory: string | null;  // null = all categories
-  selectedEmbeddingModel: 'nomic' | 'qwen';  // nomic = fast, qwen = precise
+  selectedLlmModel: 'instruct' | 'reasoning';  // instruct = fast, reasoning = precise
 }
 
 // Chat messages
