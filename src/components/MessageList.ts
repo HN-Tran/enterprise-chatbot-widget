@@ -129,9 +129,38 @@ export class MessageList {
     this.scrollToBottom();
   }
 
-  showSources(_sources: Source[]): void {
-    // Sources are now shown after the answer is complete, not during streaming
-    // This method is kept for API compatibility but does nothing
+  showSources(messageId: string, sources: Source[]): void {
+    const msgEl = this.element.querySelector(`[data-id="${messageId}"]`) as HTMLDivElement | null;
+    if (!msgEl || !sources.length) return;
+
+    // Get response text for citation filtering
+    const contentEl = msgEl.querySelector('.ec-message-content');
+    const responseText = contentEl?.textContent || '';
+    const citedSources = this.filterCitedSources(responseText, sources);
+    if (!citedSources.length) return;
+
+    const sourcesContainer = document.createElement('div');
+    sourcesContainer.className = 'ec-sources';
+
+    const header = document.createElement('div');
+    header.className = 'ec-sources-header';
+    header.textContent = this.config.labels.sourcesHeader;
+    sourcesContainer.appendChild(header);
+
+    citedSources.forEach((source) => {
+      const card = new SourceCard(source);
+      sourcesContainer.appendChild(card.getElement());
+    });
+
+    // Insert before actions row
+    const actions = msgEl.querySelector('.ec-message-actions');
+    if (actions) {
+      msgEl.insertBefore(sourcesContainer, actions);
+    } else {
+      msgEl.appendChild(sourcesContainer);
+    }
+
+    this.scrollToBottom();
   }
 
   loadMessages(messages: Message[]): void {
@@ -260,7 +289,7 @@ export class MessageList {
   private createThinkingBlockElement(streaming: boolean): HTMLDivElement {
     const block = document.createElement('div');
     block.className = 'ec-thinking-block' +
-      (streaming ? ' ec-thinking-block--open ec-thinking-block--streaming' : '');
+      (streaming ? ' ec-thinking-block--streaming' : '');
 
     const header = document.createElement('div');
     header.className = 'ec-thinking-block-header';

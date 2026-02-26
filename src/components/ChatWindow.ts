@@ -109,8 +109,8 @@ export class ChatWindow {
     this.messageList.finishStreaming(message);
   }
 
-  showSources(sources: Source[]): void {
-    this.messageList.showSources(sources);
+  showSources(messageId: string, sources: Source[]): void {
+    this.messageList.showSources(messageId, sources);
   }
 
   showError(error: string): void {

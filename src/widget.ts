@@ -189,6 +189,7 @@ export class ChatWidget {
     let assistantContent = '';
     let sources: Source[] = [];
     let streamingStarted = false;
+    let messageFinalized = false;
     let thinkingContent = '';
 
     try {
@@ -198,8 +199,12 @@ export class ChatWidget {
           this.bubble.getMascot().setState('responding');
         },
         onSources: (receivedSources) => {
-          // Just store sources, don't start streaming yet (wait for first chunk)
           sources = receivedSources;
+          // If sources arrive after done, patch them into the already-rendered message
+          if (messageFinalized) {
+            this.window.showSources(assistantMessageId, receivedSources);
+            this.storage.updateMessage(assistantMessageId, { sources: receivedSources });
+          }
         },
         onThinking: (chunk) => {
           // Start streaming on first thinking chunk
@@ -235,6 +240,7 @@ export class ChatWidget {
 
           this.window.finishStreaming(assistantMessage);
           this.storage.addMessage(assistantMessage);
+          messageFinalized = true;
           this.bubble.getMascot().setState('success');
 
           // Reset to idle after a moment
