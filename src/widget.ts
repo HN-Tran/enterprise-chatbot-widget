@@ -192,6 +192,46 @@ export class ChatWidget {
     let messageFinalized = false;
     let thinkingContent = '';
 
+    // Finalize the streamed message (called by onDone or on connection drop)
+    const finalizeMessage = () => {
+      if (messageFinalized) return;
+      const storedContent = thinkingContent
+        ? `<think>${thinkingContent}</think>${assistantContent}`
+        : assistantContent;
+
+      const assistantMessage: Message = {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: storedContent,
+        sources: sources,
+        timestamp: Date.now(),
+      };
+
+      this.window.finishStreaming(assistantMessage);
+      this.storage.addMessage(assistantMessage);
+      messageFinalized = true;
+      this.bubble.getMascot().setState('success');
+
+      setTimeout(() => {
+        this.bubble.getMascot().setState('idle');
+      }, 1500);
+    };
+
+    const handleError = (error: string) => {
+      // If content was already streamed, finalize gracefully (e.g. SSL EOF)
+      if (streamingStarted) {
+        finalizeMessage();
+        return;
+      }
+      this.window.hideThinking();
+      this.window.showError(error);
+      this.bubble.getMascot().setState('error');
+
+      setTimeout(() => {
+        this.bubble.getMascot().setState('idle');
+      }, 2000);
+    };
+
     try {
       await this.api.streamSearch(query, 8, {
         onMeta: () => {
@@ -225,47 +265,14 @@ export class ChatWidget {
           this.window.appendChunk(chunk);
         },
         onDone: () => {
-          // Store content with <think> wrapper for session restore
-          const storedContent = thinkingContent
-            ? `<think>${thinkingContent}</think>${assistantContent}`
-            : assistantContent;
-
-          const assistantMessage: Message = {
-            id: assistantMessageId,
-            role: 'assistant',
-            content: storedContent,
-            sources: sources,
-            timestamp: Date.now(),
-          };
-
-          this.window.finishStreaming(assistantMessage);
-          this.storage.addMessage(assistantMessage);
-          messageFinalized = true;
-          this.bubble.getMascot().setState('success');
-
-          // Reset to idle after a moment
-          setTimeout(() => {
-            this.bubble.getMascot().setState('idle');
-          }, 1500);
+          finalizeMessage();
         },
         onError: (error) => {
-          this.window.hideThinking();
-          this.window.showError(error);
-          this.bubble.getMascot().setState('error');
-
-          setTimeout(() => {
-            this.bubble.getMascot().setState('idle');
-          }, 2000);
+          handleError(error);
         },
       }, history, this.config.features.includeArchived, this.config.selectedCategory, this.config.selectedLlmModel);
     } catch (error) {
-      this.window.hideThinking();
-      this.window.showError(error instanceof Error ? error.message : 'Unknown error');
-      this.bubble.getMascot().setState('error');
-
-      setTimeout(() => {
-        this.bubble.getMascot().setState('idle');
-      }, 2000);
+      handleError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       this.isLoading = false;
       this.window.setLoading(false);
