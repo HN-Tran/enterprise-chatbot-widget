@@ -121,7 +121,7 @@ export class ChatWidget {
       features: {
         copyButton: userConfig.features?.copyButton ?? true,
         feedbackButtons: userConfig.features?.feedbackButtons ?? true,
-        chatHistory: this.storage.getSetting('chatHistory', userConfig.features?.chatHistory ?? true),
+        chatHistory: this.storage.getSetting('chatHistory', userConfig.features?.chatHistory ?? false),
         includeArchived: this.storage.getSetting('includeArchived', userConfig.features?.includeArchived ?? false),
       },
       // Default categories - replace this array to customize
