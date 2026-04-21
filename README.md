@@ -185,8 +185,8 @@ enterprise-chatbot-widget/
 
 ## License
 
-Proprietary - Internal use only.
+Apache-2.0 — see [`LICENSE`](LICENSE).
 
 ## Author
 
-HN-Tran
+HN-Tran — <https://github.com/HN-Tran>

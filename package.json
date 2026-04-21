@@ -2,10 +2,8 @@
   "name": "enterprise-chatbot-widget",
   "version": "1.0.0",
   "description": "Embeddable chatbot widget for Enterprise RAG",
-  "author": {
-    "name": "HN-Tran"
-  },
-  "license": "Proprietary",
+  "author": "HN-Tran",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "dist/chatbot-widget.js",
   "scripts": {
