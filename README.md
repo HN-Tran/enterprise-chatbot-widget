@@ -1,3 +1,5 @@
+[English](README.md) · [Deutsch](README_DE.md)
+
 # Enterprise Chatbot Widget
 
 Embeddable chatbot widget for the Enterprise RAG system. Deployable via a single `<script>` tag on any HTML/ASPX page.
